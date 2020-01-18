@@ -118,7 +118,126 @@
       <a href="/?from=header" cursor="pointer">
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+<script type="text/javascript">
+      var getEmail = function() {
+        if (localStorage.email) {
+          return localStorage.email;
+        }
+        return 'ANONYMOUS';
+      };
 
+      var getSearchTerm = function() {
+        return $('#searchTerm').eq(0).val();
+      }
+
+      var refresh = function() {
+        localStorage.email = ''; // clear it
+        location.reload();
+      }
+
+      window.onload = function() {
+        $('#responsys-form').on('submit', function(e) {
+          // set to localstorage
+          var _email = $("#EMAIL_ADDRESS_").val();
+          localStorage.email = _email;
+
+          ORA.click({
+            "sendSessionInfo": true,
+            "data": {
+                "action": "submitForm",
+                "data_email": getEmail()
+            }
+          });
+        });
+
+        // receive msg frm iframe
+        // have to do it this way because cross domain cannot read content from iframe
+        window.onmessage = function(event) {
+          //Form Submit Success
+          console.log(event.data);
+          if (event.data == 'Form Submit Success') {
+            //disable submit button
+            $('button[type="submit"]').attr('disabled', 'true');
+            //show success
+            $('button[type="submit"]').text('Done');
+          }
+        };
+
+            
+
+        // tag link hovers
+        $('a').hover(function() {
+          var text = $(this).text();
+          ORA.click({
+            "sendSessionInfo": true,
+            "data": {
+                "action": "linkHover",
+                "link_text": text,
+                "data_email": getEmail()
+            }
+          });
+        });
+
+        // tag link clicks
+        $('a').attr('href', '');
+        $('a').click(function() {
+          var text = $(this).text();
+          ORA.click({
+            "sendSessionInfo": true,
+            "data": {
+                "action": "linkClick",
+                "link_text": text,
+                "data_email": getEmail()
+            }
+          });
+        });
+
+        // button
+        $('button').off().click(function() {  
+          console.log('btn click')
+          var text = $(this).attr('data-original-title');
+
+          if (!text) {
+            text = $(this).text(); 
+          }
+
+          console.log(text + 'btn click ');
+
+          ORA.click({
+            "sendSessionInfo": true,
+            "data": {
+                "action": "btnClick",
+                "link_text": text,
+                "data_email": getEmail()
+            }
+          });
+        });
+
+        // override button, tag search button
+        $('#searchBtn').off().click(function() {
+          ORA.click({
+            "sendSessionInfo": true,
+            "data": {
+                "action": "search",
+                "search_term": getSearchTerm(),
+                "data_email": getEmail()
+            }
+          });
+        });
+
+        // override button, simulate abandon
+        $('#cartBtn').off().click(function() {
+          ORA.click({
+            "sendSessionInfo": true,
+            "data": {
+                "action": "abandon",
+                "data_email": getEmail()
+            }
+          });
+        });  
+      };
+    </script>
+<!-- INFINITY USE CASE -->	      
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
